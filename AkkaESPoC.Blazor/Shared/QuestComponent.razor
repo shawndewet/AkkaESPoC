@@ -1,0 +1,39 @@
+﻿@using AkkaESPoC.Shared
+<h3>Quest: @Quest.QuestName</h3>
+
+<label>Days In: @Quest.DaysIn</label>
+<label>Location: @Quest.Location</label>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Members</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Quest.Members)
+        {
+            <tr>
+                <td>@member</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Slayed</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var character in Quest.Slayed)
+        {
+            <tr>
+                <td>@character</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public QuestData Quest { get; set; }
+}

@@ -1,0 +1,31 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Available Quests";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Available Quests</h1>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-6">
+            @if (Model.Quests.Count == 0)
+            {
+                <strong>No quests created yet.</strong>
+            }
+            else
+            {
+                <ol>
+                    @foreach (var (questId, questName, location, daysIn, members, slayed) in Model.Quests)
+                    {
+                        <li>
+                            <a asp-page="/quest" asp-route-questId="@questId">@questName - @location - @daysIn</a> 
+                        </li>
+                    }
+                </ol>
+            }
+        </div>
+        <div class="col">
+        </div>
+    </div>
+</div>

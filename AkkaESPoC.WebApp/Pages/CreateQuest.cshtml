@@ -1,0 +1,32 @@
+﻿@page "/create"
+@model AkkaESPoC.WebApp.Pages.CreateQuest
+@{
+    ViewData["Title"] = "Create New Quest";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Create New Quest</h1>
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="Quest.QuestName">Quest Name</label>
+            <input asp-for="Quest.QuestName" class="form-control"/>
+            <span asp-validation-for="Quest.QuestName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Quest.Location">Location</label>
+            <input asp-for="Quest.Location" class="form-control"/>
+            <span asp-validation-for="Quest.Location" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Quest.InitialMembers">Initial Members</label>
+            <input asp-for="Quest.InitialMembers" class="form-control"/>
+            <span asp-validation-for="Quest.InitialMembers" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary my-1">Submit</button>
+    </form>
+</div>
+
+@section scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

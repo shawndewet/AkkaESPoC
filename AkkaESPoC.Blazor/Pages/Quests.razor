@@ -1,0 +1,97 @@
+﻿@page "/quests"
+@using Akka.Actor
+@using Akka.Hosting
+@using AkkaESPoC.Shared
+@using AkkaESPoC.Shared.Queries
+@using AkkaESPoC.Shared.Sharding
+@inject ActorRegistry registry
+
+<PageTitle>Quests</PageTitle>
+
+<h1>Quests</h1>
+
+@if (QuestDataList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @foreach (var quest in QuestDataList)
+    {
+        <QuestComponent Quest="@quest" />
+    }
+}
+
+@code {
+    //private HubConnection? hubConnection;
+
+    public IReadOnlyList<QuestData> QuestDataList { get; set; } = Array.Empty<QuestData>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var _indexActor = registry.Get<QuestIndexMarker>();
+        var quests = await _indexActor.Ask<FetchAllQuestsResponse>(FetchAllQuests.Instance, TimeSpan.FromSeconds(5));
+        
+        QuestDataList = quests.Quests;
+
+        //hubConnection = new HubConnectionBuilder()
+        //    .WithUrl(NavigationManager.ToAbsoluteUri("/questhub"))
+        //    .Build();
+
+        //hubConnection.On<Guid, string, string>("ApplyQuestEvent", async (questId, eventType, eventPayload) =>
+        //{
+        //    if (eventType == "quest_started")
+        //    {
+        //        //we don't have this request on the screen, so load it from the db...(well I guess we could also hydrate it from eventContent?!)
+        //        //quests.Add(await QuestService.GetQuestAsync(questId));
+        //        quests.Add(JsonConvert.DeserializeObject<Quest>(eventPayload));
+        //    }
+        //    else
+        //    {
+        //        var quest = quests.Single(r => r.Id == questId);
+        //        switch (eventType)
+        //        {
+        //            case "members_joined":
+        //                var joined = JsonConvert.DeserializeObject<MembersJoined>(eventPayload);
+        //                quest.Members.Fill(joined.Members);
+        //                quest.DaysIn = joined.Day;
+        //                break;
+
+        //            case "arrived_at_location":
+        //                var arrived = JsonConvert.DeserializeObject<ArrivedAtLocation>(eventPayload);
+        //                quest.Location = arrived.Location;
+        //                quest.DaysIn = arrived.Day;
+        //                break;
+                        
+        //            case "members_departed":
+        //                var departed = JsonConvert.DeserializeObject<MembersDeparted>(eventPayload);
+        //                 quest.Members.RemoveAll(x => departed.Members.Contains(x));
+        //                quest.DaysIn = departed.Day;
+        //                break;
+
+        //            case "characters_slayed":
+        //                var slayed = JsonConvert.DeserializeObject<CharactersSlayed>(eventPayload);
+        //                quest.Slayed.Fill(slayed.Characters);
+        //                quest.DaysIn = slayed.Day;
+        //                break;
+                        
+        //            default:
+        //                break;
+        //        }
+        //    }
+
+        //    InvokeAsync(StateHasChanged);
+        //});
+
+        //await hubConnection.StartAsync();
+    }
+
+    //private bool IsConnected =>
+    //    hubConnection?.State == HubConnectionState.Connected;
+
+    //public async ValueTask DisposeAsync()
+    //{
+    //    if (hubConnection is not null)
+    //        await hubConnection.DisposeAsync();
+    //}
+}
