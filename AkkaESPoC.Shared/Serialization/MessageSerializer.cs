@@ -482,13 +482,13 @@ public sealed class MessageSerializer : SerializerWithStringManifest
         {
             QuestId = created.QuestId,
             QuestName = created.QuestName,
-            Location = created.Location
+            Location = created.Location,
         };
     }
 
     private static QuestData FromProto(protoNS.QuestData data)
     {
-        return new QuestData(data.QuestId, data.QuestName, data.Location, data.DaysIn, new string[] { }, new string[] { });
+        return new QuestData(data.QuestId, data.QuestName, data.Location, data.DaysIn, data.Members.ToArray(), data.Slayed.ToArray());
     }
 
     private static protoNS.QuestData ToProto(QuestData data)
