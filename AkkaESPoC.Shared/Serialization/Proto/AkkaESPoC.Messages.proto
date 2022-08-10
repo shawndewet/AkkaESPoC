@@ -21,26 +21,30 @@ message QuestCreated{
 
 message MemberJoined{
     string QuestId = 1;
-    repeated string MemberName = 2;
+    string MemberName = 2;
     int32 DaysIn = 3;
+    google.protobuf.Timestamp Timestamp = 4;
 }
 
 message MemberDeparted{
     string QuestId = 1;
-    repeated string MemberName = 2;
+    string MemberName = 2;
     int32 DaysIn = 3;
+    google.protobuf.Timestamp Timestamp = 4;
 }
 
 message CharacterSlayed{
     string QuestId = 1;
-    repeated string CharacterName = 2;
+    string CharacterName = 2;
     int32 DaysIn = 3;
+    google.protobuf.Timestamp Timestamp = 4;
 }
 
 message ArrivedAtLocation{
     string QuestId = 1;
     string Location = 2;
     int32 DaysIn = 3;
+    google.protobuf.Timestamp Timestamp = 4;
 }
 
 

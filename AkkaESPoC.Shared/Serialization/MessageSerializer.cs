@@ -411,16 +411,16 @@ public sealed class MessageSerializer : SerializerWithStringManifest
         var proto = new protoNS.MemberJoined
         {
             DaysIn = entity.DaysIn,
-            QuestId = entity.QuestId
+            QuestId = entity.QuestId,
+            MemberName = entity.MemberName,
+            Timestamp = entity.Timestamp.ToTimestamp()
         };
-        proto.MemberName.AddRange(entity.MemberName);
-
         return proto;
     }
 
     private static MemberJoined FromProto(protoNS.MemberJoined proto)
     {
-        return  new MemberJoined(proto.QuestId, proto.MemberName.ToArray(), proto.DaysIn);
+        return new MemberJoined(proto.QuestId, proto.MemberName, proto.DaysIn, proto.Timestamp == null ? new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc) : proto.Timestamp.ToDateTime());
     }
 
     private static protoNS.MemberDeparted ToProto(MemberDeparted entity)
@@ -428,16 +428,17 @@ public sealed class MessageSerializer : SerializerWithStringManifest
         var proto = new protoNS.MemberDeparted
         {
             DaysIn = entity.DaysIn,
-            QuestId = entity.QuestId
+            QuestId = entity.QuestId,
+            MemberName = entity.MemberName,
+            Timestamp = entity.Timestamp.ToTimestamp()
         };
-        proto.MemberName.AddRange(entity.MemberName);
 
         return proto;
     }
 
     private static MemberDeparted FromProto(protoNS.MemberDeparted proto)
     {
-        return new MemberDeparted(proto.QuestId, proto.MemberName.ToArray(), proto.DaysIn);
+        return new MemberDeparted(proto.QuestId, proto.MemberName, proto.DaysIn, proto.Timestamp.ToDateTime());
     }
 
     private static protoNS.CharacterSlayed ToProto(CharacterSlayed entity)
@@ -445,16 +446,17 @@ public sealed class MessageSerializer : SerializerWithStringManifest
         var proto = new protoNS.CharacterSlayed
         {
             DaysIn = entity.DaysIn,
-            QuestId = entity.QuestId
+            QuestId = entity.QuestId,
+            CharacterName = entity.CharacterName,
+            Timestamp = entity.Timestamp.ToTimestamp()
         };
-        proto.CharacterName.AddRange(entity.CharacterName);
 
         return proto;
     }
 
     private static CharacterSlayed FromProto(protoNS.CharacterSlayed proto)
     {
-        return new CharacterSlayed(proto.QuestId, proto.CharacterName.ToArray(), proto.DaysIn);
+        return new CharacterSlayed(proto.QuestId, proto.CharacterName, proto.DaysIn, proto.Timestamp.ToDateTime());
     }
 
     private static protoNS.ArrivedAtLocation ToProto(ArrivedAtLocation entity)
@@ -463,13 +465,14 @@ public sealed class MessageSerializer : SerializerWithStringManifest
         {
             DaysIn = entity.DaysIn,
             QuestId = entity.QuestId,
-            Location = entity.Location
+            Location = entity.Location,
+            Timestamp = entity.Timestamp.ToTimestamp()
         };
     }
 
     private static ArrivedAtLocation FromProto(protoNS.ArrivedAtLocation proto)
     {
-        return new ArrivedAtLocation(proto.QuestId, proto.Location, proto.DaysIn);
+        return new ArrivedAtLocation(proto.QuestId, proto.Location, proto.DaysIn, proto.Timestamp.ToDateTime());
     }
 
 

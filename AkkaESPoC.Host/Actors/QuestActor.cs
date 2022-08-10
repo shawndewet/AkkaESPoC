@@ -36,13 +36,21 @@ public sealed class QuestActor : ReceivePersistentActor
         {
             if (offer.Snapshot is QuestState state)
             {
+
+                _log.Info("Recovering Snapshot: {0} *********************************************", offer.Metadata.SequenceNr);
+
                 State = state;
             }
         });
 
         Recover<IQuestEvent>(questEvent =>
         {
+            _log.Info("Recovering: Event {0} *********************************************", questEvent);
+
             State = State.ProcessEvent(questEvent);
+
+            _log.Info($"State is {System.Text.Json.JsonSerializer.Serialize(State.Data)}");
+
         });
 
         Command<IQuestCommand>(cmd =>
@@ -51,9 +59,11 @@ public sealed class QuestActor : ReceivePersistentActor
             var sentResponse = false; //required because questEvent is called for each response.ResponseEvent
             PersistAllAsync(response.ResponseEvents, questEvent =>
             {
-                _log.Info("Processed: {0}", questEvent);
+                _log.Info("Processing Event: {0} *********************************************", questEvent);
                 
                 State = State.ProcessEvent(questEvent);
+
+                _log.Info($"New State is {System.Text.Json.JsonSerializer.Serialize(State.Data)}");
 
                 if (!sentResponse) // otherwise we'll generate a response-per-event
                 {

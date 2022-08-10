@@ -49,11 +49,12 @@ public record QuestState : IWithQuestId
                         // not initialized, can create
 
                         // events
-                        var questCreated = new QuestCreated(create.QuestId, create.QuestName, create.Location);
-                        var memberJoined = new MemberJoined(create.QuestId, create.InitialMembers, 0);
+                        var events = new List<IQuestEvent>();
+                        events.Add(new QuestCreated(create.QuestId, create.QuestName, create.Location));
+                        foreach (var item in create.InitialMembers)
+                            events.Add(new MemberJoined(create.QuestId, item, 0, DateTime.UtcNow));
 
-                        var response = new QuestCommandResponse(create.QuestId, new IQuestEvent[] { questCreated, memberJoined });
-                        return response;
+                        return new QuestCommandResponse(create.QuestId, events);
                     }
                     else
                     {
@@ -73,9 +74,12 @@ public record QuestState : IWithQuestId
                             return new QuestCommandResponse(questCommand.QuestId, Array.Empty<IQuestEvent>(), false,
                                 $"Member {item} already in Quest");
                     }
-                    var memberJoined = new MemberJoined(questId, memberNames, daysIn);
-                    var response = new QuestCommandResponse(questId, new IQuestEvent[] { memberJoined });
-                    return response;
+                    
+                    var events = new List<IQuestEvent>();
+                    foreach (var item in memberNames)
+                        events.Add(new MemberJoined(questId, item, daysIn, DateTime.UtcNow));
+
+                    return new QuestCommandResponse(questId, events);
                 }
             case DepartQuest(string questId, int daysIn, string[] memberNames) when !IsEmpty:
                 {
@@ -89,9 +93,11 @@ public record QuestState : IWithQuestId
                             return new QuestCommandResponse(questCommand.QuestId, Array.Empty<IQuestEvent>(), false,
                                 $"Member {item} not in Quest");
                     }
-                    var memberDeparted = new MemberDeparted(questId, memberNames, daysIn);
-                    var response = new QuestCommandResponse(questId, new IQuestEvent[] { memberDeparted });
-                    return response;
+                    var events = new List<IQuestEvent>();
+                    foreach (var item in memberNames)
+                        events.Add(new MemberDeparted(questId, item, daysIn, DateTime.UtcNow));
+
+                    return new QuestCommandResponse(questId, events);
                 }
             case ArriveAtLocation(string questId, int daysIn, string location) when !IsEmpty:
                 {
@@ -103,7 +109,7 @@ public record QuestState : IWithQuestId
                         return new QuestCommandResponse(questCommand.QuestId, Array.Empty<IQuestEvent>(), false,
                                 $"Cannot arrive earlier than {Data.DaysIn} days into the quest");
 
-                    var arrivedAtLocation = new ArrivedAtLocation(questId, location, daysIn);
+                    var arrivedAtLocation = new ArrivedAtLocation(questId, location, daysIn, DateTime.UtcNow);
                     var response = new QuestCommandResponse(questId,
                     new IQuestEvent[] { arrivedAtLocation });
                     return response;
@@ -114,10 +120,11 @@ public record QuestState : IWithQuestId
                         return new QuestCommandResponse(questCommand.QuestId, Array.Empty<IQuestEvent>(), false,
                                 $"Cannot slay earlier than {Data.DaysIn} days into the quest");
 
-                    var characterSlayed = new CharacterSlayed(questId, characterName, daysIn);
-                    var response = new QuestCommandResponse(questId,
-                    new IQuestEvent[] { characterSlayed });
-                    return response;
+                    var events = new List<IQuestEvent>();
+                    foreach (var item in characterName)
+                        events.Add(new CharacterSlayed(questId, item, daysIn, DateTime.UtcNow));
+
+                    return new QuestCommandResponse(questId, events);
                 }
             default:
                 {
@@ -131,72 +138,70 @@ public record QuestState : IWithQuestId
     {
         switch (questEvent)
         {
-            case QuestCreated(string questId, string questName, string location):
+            case QuestCreated @event:
                 {
                     return this with
                     {
                         Data = Data with
                         {
-                            QuestId = questId,
-                            QuestName = questName,
-                            Location = location
+                            QuestId = @event.QuestId,
+                            QuestName = @event.QuestName,
+                            Location = @event.Location
                         }
                     };
                 }
-            case MemberJoined(var questId, var memberName, var daysIn) @event:
+            case MemberJoined @event:
                 {
                     var newMembers = this.Data.Members.ToList();
-                    newMembers.AddRange(memberName);
+                    newMembers.Add(@event.MemberName);
 
                     return this with
                     {
                         Data = Data with
                         {
-                            DaysIn = daysIn,
+                            DaysIn = @event.DaysIn,
                             Members = newMembers.ToArray()
                         },
                         MembersJoined = MembersJoined.Add(@event)
                     };
                 }
-            case MemberDeparted(var questId, var memberName, var daysIn) @event:
+            case MemberDeparted @event:
                 {
                     var newMembers = this.Data.Members.ToList();
-                    foreach (var item in memberName)
-                        newMembers.Remove(item);
-                    
+                        newMembers.Remove(@event.MemberName);
 
                     return this with
                     {
                         Data = Data with
                         {
-                            DaysIn = daysIn,
+                            DaysIn = @event.DaysIn,
                             Members = newMembers.ToArray()
                         },
                         MembersDeparted = MembersDeparted.Add(@event)
                     };
                 }
-            case ArrivedAtLocation(var questId, var locationName, var daysIn) @event:
+            case ArrivedAtLocation @event:
                 {
                     return this with
                     {
                         Data = Data with
                         {
-                            DaysIn = daysIn,
-                            Location = locationName
+                            DaysIn = @event.DaysIn,
+                            Location = @event.Location
                         },
                         LocationArrivals = LocationArrivals.Add(@event)
                     };
                 }
-            case CharacterSlayed(var questId, var characterNames, var daysIn) @event:
+            case CharacterSlayed @event:
                 {
                     var newSlayed = this.Data.Slayed.ToList();
-                    newSlayed.AddRange(characterNames);
+                    newSlayed.Add(@event.CharacterName);
 
                     return this with
                     {
                         Data = Data with
                         {
-                            DaysIn = daysIn,
+                            DaysIn = @event.DaysIn,
                             Slayed = newSlayed.ToArray()
                         },
                         CharactersSlayed = CharactersSlayed.Add(@event)
