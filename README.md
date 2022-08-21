@@ -29,6 +29,11 @@ This will build a copy of our [MSSQL image](https://github.com/petabridge/akkado
 Load up Rider or Visual Studio and
 
 1. Launch `AkkaESPoC.Host`, followed by
-2. Launch `AkkaESPoC.WebApp`.
+2. Launch `AkkaESPoC.WebApp`. / Launch 'AkkaESPoC.Blazor`
 
-Provided that you don't see any SQL Server connection errors originating from `AkkaESPoC.Host` - you should have no trouble using the WebApp's UI to add quests, submit orders, change inventory levels, and more.
+The Domain models a Fantasy Quest scenario, in which the minimal API in the `WebApp` provide methods to create a new quest, join a quest, etc.  
+
+The latest commit attempts to use DistributedPubSub to inform the `QuestViewActor` in the Blazor app when a new Quest has been added in the `WebApp`, and then have that Actor send a SignalR message to automagically add the newly-created quest to the list of quests bound to the UI view `\quests'. 
+
+As of now, the Distributed PubSub part is working, but the SignalR message is not being sent to the UI.
+
