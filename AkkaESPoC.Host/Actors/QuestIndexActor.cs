@@ -18,11 +18,14 @@ public sealed class QuestIndexActor : ReceiveActor
 {
     private readonly ILoggingAdapter _logging = Context.GetLogger();
     private readonly IActorRef _shardRegion;
+    private readonly IActorRef _mediator;
     private ImmutableDictionary<string, QuestData> _questIds = ImmutableDictionary<string, QuestData>.Empty;
 
     public QuestIndexActor(IActorRef shardRegion)
     {
         _shardRegion = shardRegion;
+        _mediator = Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.Get(Context.System).Mediator;
+
         Receive<QuestFound>(found =>
         {
             _logging.Info("Found quest [{0}]", found);
@@ -34,6 +37,7 @@ public sealed class QuestIndexActor : ReceiveActor
         {
             _logging.Info("Received quest state for quest [{0}]", result.State.QuestId);
             _questIds = _questIds.SetItem(result.State.QuestId, result.State.Data);
+            _mediator.Tell(new Akka.Cluster.Tools.PublishSubscribe.Publish("questfound", result.State));
         });
 
         Receive<FetchAllQuests>(f =>

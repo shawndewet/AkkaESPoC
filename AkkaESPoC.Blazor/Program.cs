@@ -1,12 +1,13 @@
 using Akka.Actor;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
+using Akka.Persistence.SqlServer.Hosting;
 using Akka.Remote.Hosting;
+using AkkaESPoC.Blazor.Actors;
 using AkkaESPoC.Blazor.Data;
+using AkkaESPoC.Blazor.Hubs;
 using AkkaESPoC.Shared.Serialization;
 using AkkaESPoC.Shared.Sharding;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,26 +24,35 @@ var port = akkaSection.GetValue<int>("ClusterPort", 7917);
 var seeds = akkaSection.GetValue<string[]>("ClusterSeeds", new[] { "akka.tcp://AkkaESPoC@localhost:7919" }).Select(Address.Parse)
     .ToArray();
 
-// Add services to the container.
-builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
-{
-    configurationBuilder.WithRemoting(hostName, port)
-        .AddAppSerialization()
-        .WithClustering(new ClusterOptions()
-        { Roles = new[] { "Web" }, SeedNodes = seeds })
-        .WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,
-            new QuestMessageRouter())
-        .WithActors((system, registry) =>
-        {
-            var proxyProps = system.QuestIndexProxyProps();
-            registry.TryRegister<QuestIndexMarker>(system.ActorOf(proxyProps, "quest-proxy"));
-        });
-});
+var connectionString = builder.Configuration.GetConnectionString("AkkaSqlConnection");
 
 // Add services to the container.
+builder.Services.AddSingleton<SignalRConnectionList>();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+//builder.Services.AddTransient<QuestHubHelper>();
+builder.Services.AddSingleton<QuestHubHelper>();
+builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
+{
+    configurationBuilder
+        .WithRemoting(hostName, port)
+        .AddAppSerialization()
+        .WithClustering(new ClusterOptions()
+        { Roles = new[] { "Web" }, SeedNodes = seeds })
+        //.WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,
+        //    new QuestMessageRouter())
+        .WithActors((system, registry) =>
+        {
+            //var proxyProps = system.QuestIndexProxyProps();
+            //registry.TryRegister<QuestIndexMarker>(system.ActorOf(proxyProps, "quest-proxy"));
+
+            var resolverProps = Akka.DependencyInjection.DependencyResolver.For(system).Props<QuestViewActor>();
+            //var viewActorProps = system.ActorOf(Props.Create<QuestViewActor>(provider), "questview");
+            system.ActorOf(resolverProps, "questview");
+        });
+});
+
 
 var app = builder.Build();
 
@@ -61,6 +71,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
+
+app.MapHub<QuestHub>("/questhub");
 app.MapFallbackToPage("/_Host");
 
 app.Run();
