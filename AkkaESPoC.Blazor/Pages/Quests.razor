@@ -58,10 +58,10 @@ else
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<QuestData>("AddQuest", (questData) =>
+        hubConnection.On<string>("AddQuest", (questData) =>
         {
-            jsRuntime.InvokeVoidAsync("console.log", "AddQuest");
-            QuestDataList.Add(questData);
+            jsRuntime.InvokeVoidAsync("console.log", "AddQuest " + questData);
+            //QuestDataList.Add(questData);
             InvokeAsync(StateHasChanged);
         });
 

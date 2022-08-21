@@ -39,7 +39,7 @@ var builder = new HostBuilder()
         {
             configurationBuilder
                 .WithRemoting(hostName, port)
-                .AddAppSerialization()
+                //.AddAppSerialization()
                 .WithClustering(new ClusterOptions()
                     { Roles = new[] { QuestActorProps.SingletonActorRole }, SeedNodes = seeds })
                 .WithSqlServerPersistence(connectionString)

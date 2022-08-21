@@ -24,7 +24,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
 {
     configurationBuilder.WithRemoting(hostName, port)
-        .AddAppSerialization()
+        //.AddAppSerialization()
         .WithClustering(new ClusterOptions()
         { Roles = new[] { "Web" }, SeedNodes = seeds })
         .WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,

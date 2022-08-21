@@ -22,8 +22,9 @@ namespace AkkaESPoC.Blazor.Actors
         private readonly IActorRef _mediator;
         private readonly IServiceProvider _serviceProvider;
         private readonly IServiceScope _scope;
+        private readonly IHubContext<QuestHub> _hubContext;
 
-        public QuestViewActor(IServiceProvider serviceProvider)
+        public QuestViewActor(IHubContext<QuestHub> hubContext) // IServiceProvider serviceProvider)
         {
             _log = Context.GetLogger();
 
@@ -47,7 +48,8 @@ namespace AkkaESPoC.Blazor.Actors
                 }
             });
             //_serviceProvider = serviceProvider;
-            _scope = serviceProvider.CreateScope();
+            //_scope = serviceProvider.CreateScope();
+            _hubContext = hubContext;
         }
         private void Ready()
         {
@@ -58,14 +60,16 @@ namespace AkkaESPoC.Blazor.Actors
                 //var _questHub = Akka.DependencyInjection.DependencyResolver.For(Context.System).Resolver.GetService<IHubContext<QuestHub>>();
                 //var _questHub = _serviceProvider.GetRequiredService<IHubContext<QuestHub>>();
                 //var _questHub = _scope.ServiceProvider.GetRequiredService<IHubContext<QuestHub>>();
-                var _questHubHelper = _scope.ServiceProvider.GetRequiredService<QuestHubHelper>();
-                await _questHubHelper.AddQuest(message.Data);
+                //var _questHubHelper = _scope.ServiceProvider.GetRequiredService<QuestHubHelper>();
+                //await _questHubHelper.AddQuest(message.Data);
                 //var counter = Akka.DependencyInjection.DependencyResolver.For(Context.System).Resolver.GetService<SignalRConnectionList>();
                 //var counter = _serviceProvider.GetRequiredService<SignalRConnectionList>();
                 //var counter = _scope.ServiceProvider.GetRequiredService<SignalRConnectionList>();
                 //_log.Info($"Have {counter.Count} connections");
 
                 //await _questHub.Clients.All.SendAsync("AddQuest", message.Data);
+
+                await _hubContext.Clients.All.SendAsync("AddQuest", message.Data.QuestId);
                 _log.Info($"Sent AddQuest for {message.QuestId}");
 
                 

@@ -31,21 +31,20 @@ builder.Services.AddSingleton<SignalRConnectionList>();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-//builder.Services.AddTransient<QuestHubHelper>();
-builder.Services.AddSingleton<QuestHubHelper>();  //have also tried this with .AddTransient, and then use _serviceProvider inside the QuestViewActor Receive method to resolve it at runtime.
+//builder.Services.AddSingleton<QuestHubHelper>();  //have also tried this with .AddTransient, and then use _serviceProvider inside the QuestViewActor Receive method to resolve it at runtime.
 builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
 {
     configurationBuilder
         .WithRemoting(hostName, port)
-        .AddAppSerialization()
+        //.AddAppSerialization()
         .WithClustering(new ClusterOptions()
-        { Roles = new[] { "Web" }, SeedNodes = seeds })
+            { Roles = new[] { "Blazor" }, SeedNodes = seeds })
         //.WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,
         //    new QuestMessageRouter())
         .WithActors((system, registry) =>
         {
-            //var proxyProps = system.QuestIndexProxyProps();
-            //registry.TryRegister<QuestIndexMarker>(system.ActorOf(proxyProps, "quest-proxy"));
+            var proxyProps = system.QuestIndexProxyProps();
+            registry.TryRegister<QuestIndexMarker>(system.ActorOf(proxyProps, "quest-proxy"));
 
             var resolverProps = Akka.DependencyInjection.DependencyResolver.For(system).Props<QuestViewActor>();
             //var viewActorProps = system.ActorOf(Props.Create<QuestViewActor>(provider), "questview");
