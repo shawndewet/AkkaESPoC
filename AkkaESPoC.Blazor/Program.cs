@@ -32,7 +32,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 //builder.Services.AddTransient<QuestHubHelper>();
-builder.Services.AddSingleton<QuestHubHelper>();
+builder.Services.AddSingleton<QuestHubHelper>();  //have also tried this with .AddTransient, and then use _serviceProvider inside the QuestViewActor Receive method to resolve it at runtime.
 builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
 {
     configurationBuilder
