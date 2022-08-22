@@ -5,7 +5,6 @@ using Akka.Remote.Hosting;
 using AkkaESPoC.Blazor.Actors;
 using AkkaESPoC.Blazor.Data;
 using AkkaESPoC.Blazor.Hubs;
-using AkkaESPoC.Shared.Serialization;
 using AkkaESPoC.Shared.Sharding;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,16 +25,14 @@ var seeds = akkaSection.GetValue<string[]>("ClusterSeeds", new[] { "akka.tcp://A
 var connectionString = builder.Configuration.GetConnectionString("AkkaSqlConnection");
 
 // Add services to the container.
-builder.Services.AddSingleton<SignalRConnectionList>();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-//builder.Services.AddSingleton<QuestHubHelper>();  //have also tried this with .AddTransient, and then use _serviceProvider inside the QuestViewActor Receive method to resolve it at runtime.
 builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
 {
     configurationBuilder
         .WithRemoting(hostName, port)
-        //.AddAppSerialization()
+        .WithCustomSerializer("hyperion", new[] { typeof(object) }, system => new Akka.Serialization.HyperionSerializer(system))
         .WithClustering(new ClusterOptions()
             { Roles = new[] { "Blazor" }, SeedNodes = seeds })
         //.WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,

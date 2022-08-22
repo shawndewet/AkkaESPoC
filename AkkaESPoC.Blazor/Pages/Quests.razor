@@ -8,7 +8,6 @@
 @inject ActorRegistry registry
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
-@inject AkkaESPoC.Blazor.Hubs.SignalRConnectionList SignalRConnectionList
 @implements IAsyncDisposable
 
 <PageTitle>Quests</PageTitle>
@@ -22,7 +21,6 @@ else
 {
     <p>QuestHub NOT Connected</p>
 }
-<p>@SignalRConnectionList.Count connections</p>
 @if (QuestDataList == null)
 {
     <p><em>Loading...</em></p>
@@ -58,10 +56,10 @@ else
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<string>("AddQuest", (questData) =>
+        hubConnection.On<QuestData>("AddQuest", (questData) =>
         {
-            jsRuntime.InvokeVoidAsync("console.log", "AddQuest " + questData);
-            //QuestDataList.Add(questData);
+            jsRuntime.InvokeVoidAsync("console.log", "AddQuest", questData);
+            QuestDataList.Add(questData);
             InvokeAsync(StateHasChanged);
         });
 

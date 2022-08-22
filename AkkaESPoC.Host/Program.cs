@@ -9,7 +9,6 @@ using Akka.Remote.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using AkkaESPoC.Host.Actors;
-using AkkaESPoC.Shared.Serialization;
 using AkkaESPoC.Shared.Sharding;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
@@ -39,7 +38,7 @@ var builder = new HostBuilder()
         {
             configurationBuilder
                 .WithRemoting(hostName, port)
-                //.AddAppSerialization()
+                .WithCustomSerializer("hyperion", new[] { typeof(object) }, system => new Akka.Serialization.HyperionSerializer(system))
                 .WithClustering(new ClusterOptions()
                     { Roles = new[] { QuestActorProps.SingletonActorRole }, SeedNodes = seeds })
                 .WithSqlServerPersistence(connectionString)

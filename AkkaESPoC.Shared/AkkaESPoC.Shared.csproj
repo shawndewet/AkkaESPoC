@@ -11,8 +11,4 @@
         <PackageReference Include="Grpc.AspNetCore" Version="2.42.0" />
     </ItemGroup>
 
-	<ItemGroup>
-		<Protobuf Include="Serialization\Proto\AkkaESPoC.Messages.proto" GrpcServices="None" />
-	</ItemGroup>
-
 </Project>

@@ -2,7 +2,6 @@ using Akka.Actor;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
-using AkkaESPoC.Shared.Serialization;
 using AkkaESPoC.Shared.Sharding;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +23,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
 {
     configurationBuilder.WithRemoting(hostName, port)
-        //.AddAppSerialization()
+        .WithCustomSerializer("hyperion", new[] { typeof(object) }, system => new Akka.Serialization.HyperionSerializer(system))
         .WithClustering(new ClusterOptions()
         { Roles = new[] { "Web" }, SeedNodes = seeds })
         .WithShardRegionProxy<QuestMarker>("quests", QuestActorProps.SingletonActorRole,
