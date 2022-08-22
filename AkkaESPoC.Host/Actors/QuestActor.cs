@@ -27,11 +27,14 @@ public sealed class QuestActor : ReceivePersistentActor
 
     private readonly ILoggingAdapter _log = Context.GetLogger();
 
+    private readonly IActorRef _mediator;
+
     public QuestActor(string persistenceId)
     {
         PersistenceId = $"{QuestEntityNameConstant}-" + persistenceId;
         State = new QuestState();
-        
+        _mediator = Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.Get(Context.System).Mediator;
+
         Recover<SnapshotOffer>(offer =>
         {
             if (offer.Snapshot is QuestState state)
@@ -73,6 +76,8 @@ public sealed class QuestActor : ReceivePersistentActor
                 
                 if(LastSequenceNr % 10 == 0)
                     SaveSnapshot(State);
+
+                _mediator.Tell(new Akka.Cluster.Tools.PublishSubscribe.Publish("questUpdated", State));
             });
         });
 

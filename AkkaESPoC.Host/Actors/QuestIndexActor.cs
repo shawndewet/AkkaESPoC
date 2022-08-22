@@ -24,7 +24,6 @@ public sealed class QuestIndexActor : ReceiveActor
     public QuestIndexActor(IActorRef shardRegion)
     {
         _shardRegion = shardRegion;
-        _mediator = Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.Get(Context.System).Mediator;
 
         Receive<QuestFound>(found =>
         {
@@ -37,7 +36,6 @@ public sealed class QuestIndexActor : ReceiveActor
         {
             _logging.Info("Received quest state for quest [{0}]", result.State.QuestId);
             _questIds = _questIds.SetItem(result.State.QuestId, result.State.Data);
-            _mediator.Tell(new Akka.Cluster.Tools.PublishSubscribe.Publish("questfound", result.State));
         });
 
         Receive<FetchAllQuests>(f =>

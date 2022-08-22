@@ -42,9 +42,8 @@ builder.Services.AddAkka("AkkaESPoC", (configurationBuilder, provider) =>
             var proxyProps = system.QuestIndexProxyProps();
             registry.TryRegister<QuestIndexMarker>(system.ActorOf(proxyProps, "quest-proxy"));
 
-            var resolverProps = Akka.DependencyInjection.DependencyResolver.For(system).Props<QuestViewActor>();
-            //var viewActorProps = system.ActorOf(Props.Create<QuestViewActor>(provider), "questview");
-            system.ActorOf(resolverProps, "questview");
+            var qvProps = Akka.DependencyInjection.DependencyResolver.For(system).Props<QuestViewActor>();
+            system.ActorOf(qvProps, "questview");
         });
 });
 

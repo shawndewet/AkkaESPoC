@@ -36,7 +36,7 @@ else
 @code {
     private HubConnection? hubConnection;
 
-    public IList<QuestData> QuestDataList { get; set; } = Array.Empty<QuestData>();
+    public List<QuestData> QuestDataList { get; set; } = new ();
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,10 +56,15 @@ else
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<QuestData>("AddQuest", (questData) =>
+        hubConnection.On<QuestData>("QuestUpdated", (questData) =>
         {
-            jsRuntime.InvokeVoidAsync("console.log", "AddQuest", questData);
-            QuestDataList.Add(questData);
+            jsRuntime.InvokeVoidAsync("console.log", "QuestUpdated", questData);
+            var idx = QuestDataList.FindIndex(r => r.QuestId == questData.QuestId);
+            if (idx == -1)
+                QuestDataList.Add(questData);
+            else
+                QuestDataList[idx] = questData;
+
             InvokeAsync(StateHasChanged);
         });
 

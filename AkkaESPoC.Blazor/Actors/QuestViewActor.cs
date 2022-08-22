@@ -24,12 +24,12 @@ namespace AkkaESPoC.Blazor.Actors
             _log.Info("Instantiating QuestViewActor...........................");
             
             _mediator = Akka.Cluster.Tools.PublishSubscribe.DistributedPubSub.Get(Context.System).Mediator;
-            _mediator.Tell(new Akka.Cluster.Tools.PublishSubscribe.Subscribe("questfound", Self));
+            _mediator.Tell(new Akka.Cluster.Tools.PublishSubscribe.Subscribe("questUpdated", Self));
             Receive<Akka.Cluster.Tools.PublishSubscribe.SubscribeAck>(ack =>
             {
                 _log.Info($"Received SubscribeAck with Topic {ack.Subscribe.Topic} and ref eq self? {ack.Subscribe.Ref.Equals(Self)}");
 
-                if (ack != null && ack.Subscribe.Topic == "questfound" && ack.Subscribe.Ref.Equals(Self))
+                if (ack != null && ack.Subscribe.Topic == "questUpdated" && ack.Subscribe.Ref.Equals(Self))
                 {
                     _log.Info($"Become Ready");
 
@@ -50,8 +50,7 @@ namespace AkkaESPoC.Blazor.Actors
             {
                 _log.Info("Got QuestState {0}", message.QuestId);
 
-                await _hubContext.Clients.All.SendAsync("AddQuest", message.Data);
-                _log.Info($"Sent AddQuest for {message.QuestId}");
+                await _hubContext.Clients.All.SendAsync("QuestUpdated", message.Data);
             });
         }
 
