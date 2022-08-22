@@ -33,7 +33,6 @@ Load up Rider or Visual Studio and
 
 The Domain models a Fantasy Quest scenario, in which the minimal API in the `WebApp` provide methods to create a new quest, join a quest, etc.  
 
-The latest commit attempts to use DistributedPubSub to inform the `QuestViewActor` in the Blazor app when a new Quest has been added in the `WebApp`, and then have that Actor send a SignalR message to automagically add the newly-created quest to the list of quests bound to the UI view `\quests'. 
+The system uses DistributedPubSub to inform the `QuestViewActor` in the Blazor app when a new Quest has been added (or an existing Quest has been updated) via the API calls in the `WebApp`, and then have that Actor send a SignalR message to automagically update the Quests view in Blazor App.
 
-As of now, the Distributed PubSub part is working, but the SignalR message is not being sent to the UI.
-
+To see this in action, open the Quests view in the Blazor app, and then create a new Quest (or join a quest, or arrive at a new location) using the API calls in the Web App.
