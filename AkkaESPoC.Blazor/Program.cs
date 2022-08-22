@@ -1,7 +1,6 @@
 using Akka.Actor;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
-using Akka.Persistence.SqlServer.Hosting;
 using Akka.Remote.Hosting;
 using AkkaESPoC.Blazor.Actors;
 using AkkaESPoC.Blazor.Data;

@@ -4,10 +4,6 @@ using AkkaESPoC.Blazor.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Immutable;
 using Akka.Cluster.Tools.Singleton;
-using Akka.Persistence.Query;
-using Akka.Persistence.Query.Sql;
-using Akka.Streams;
-using Akka.Streams.Dsl;
 using AkkaESPoC.Shared;
 using AkkaESPoC.Shared.Queries;
 
